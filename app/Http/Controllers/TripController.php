@@ -71,17 +71,21 @@ class TripController extends Controller
     }
 
     // Accept a trip (for drivers only)
-    public function accept(Trip $trip)
-    {
-        $this->authorize('accept', $trip);
-        
-        $trip->update([
-            'driver_id' => auth()->id(),
-            'status' => 'accepted'
-        ]);
-        
-        return redirect()->route('trips.index')->with('success', 'Trip accepted successfully!');
-    }
+    // In the accept method of TripController
+public function accept(Trip $trip)
+{
+    $this->authorize('accept', $trip);
+    
+    $trip->update([
+        'driver_id' => auth()->id(),
+        'status' => 'accepted'
+    ]);
+    
+    // Send email notification with QR code to passenger
+    $trip->passenger->notify(new TripAccepted($trip));
+    
+    return redirect()->route('trips.index')->with('success', 'Trip accepted successfully!');
+}
 
     // Complete a trip (for drivers only)
     public function complete(Trip $trip)
@@ -130,4 +134,5 @@ class TripController extends Controller
         
         return $pendingTrips;
     }
+    
 }

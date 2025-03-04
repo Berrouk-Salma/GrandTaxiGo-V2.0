@@ -46,4 +46,19 @@ class Trip extends Model
         return $query->where('status', 'pending')
                     ->where('departure_time', '<', now());
     }
+    // Add these methods to your existing Trip model
+public function reviews()
+{
+    return $this->hasMany(Review::class);
+}
+
+public function payments()
+{
+    return $this->hasMany(Payment::class);
+}
+
+public function isPaid()
+{
+    return $this->payments()->successful()->exists();
+}
 }

@@ -17,6 +17,12 @@ class DriverAvailabilityController extends Controller
     public function index()
     {
         $availabilities = auth()->user()->availabilities()->latest()->get();
+
+        // Cache driver availabilities for 5 minutes
+        $availabilities = Cache::remember("driver_availabilities_{$user->id}", now()->addMinutes(5), function () use ($user) {
+            return $user->availabilities()->latest()->get();
+        });
+
         return view('availabilities.index', compact('availabilities'));
     }
 

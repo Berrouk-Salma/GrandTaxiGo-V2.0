@@ -57,4 +57,32 @@ class User extends Authenticatable
     {
         return $this->user_type === 'passenger';
     }
+
+    // Add these methods to your existing User model
+public function reviewsReceived()
+{
+    return $this->hasMany(Review::class, 'reviewed_id');
+}
+
+public function reviewsGiven()
+{
+    return $this->hasMany(Review::class, 'reviewer_id');
+}
+
+public function payments()
+{
+    return $this->hasMany(Payment::class);
+}
+
+// Helper method to check if user is admin
+public function isAdmin()
+{
+    return $this->role === 'admin';
+}
+
+// Average rating received
+public function averageRating()
+{
+    return $this->reviewsReceived()->avg('rating') ?? 0;
+}
 }
