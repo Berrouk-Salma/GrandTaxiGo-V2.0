@@ -69,6 +69,23 @@
         </div>
     </nav>
 
+@auth
+    <!-- For admin users -->
+    @if(auth()->user()->isAdmin())
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
+        </li>
+    @endif
+    
+    <!-- For passengers -->
+    @if(auth()->user()->isPassenger())
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('payments.history') }}">Payment History</a>
+        </li>
+    @endif
+@endauth
+
+<!-- Add social login buttons to login page -->
     <main class="container py-4">
         @if(session('success'))
             <div class="alert alert-success">

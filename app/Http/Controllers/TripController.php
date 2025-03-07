@@ -8,12 +8,17 @@ use App\Models\User;
 use App\Models\DriverAvailability;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Services\DriverAvailabilityService;
+use App\Notifications\TripAccepted;
 
 class TripController extends Controller
 {
-    public function __construct()
+    protected $availabilityService;
+
+    public function __construct(DriverAvailabilityService $availabilityService)
     {
         $this->middleware('auth');
+        $this->availabilityService = $availabilityService;
     }
 
     // Show trips for authenticated user
@@ -71,21 +76,23 @@ class TripController extends Controller
     }
 
     // Accept a trip (for drivers only)
-    // In the accept method of TripController
-public function accept(Trip $trip)
-{
-    $this->authorize('accept', $trip);
-    
-    $trip->update([
-        'driver_id' => auth()->id(),
-        'status' => 'accepted'
-    ]);
-    
-    // Send email notification with QR code to passenger
-    $trip->passenger->notify(new TripAccepted($trip));
-    
-    return redirect()->route('trips.index')->with('success', 'Trip accepted successfully!');
-}
+    public function accept(Trip $trip)
+    {
+        $this->authorize('accept', $trip);
+        
+        $trip->update([
+            'driver_id' => auth()->id(),
+            'status' => 'accepted'
+        ]);
+        
+        // Update driver availabilities
+        $this->availabilityService->updateDriverAvailability(auth()->user());
+        
+        // Send email notification with QR code to passenger
+        $trip->passenger->notify(new TripAccepted($trip));
+        
+        return redirect()->route('trips.index')->with('success', 'Trip accepted successfully!');
+    }
 
     // Complete a trip (for drivers only)
     public function complete(Trip $trip)
@@ -93,6 +100,9 @@ public function accept(Trip $trip)
         $this->authorize('complete', $trip);
         
         $trip->update(['status' => 'completed']);
+        
+        // Create new availability after trip
+        $this->availabilityService->createAvailabilityAfterTrip($trip);
         
         return redirect()->route('trips.index')->with('success', 'Trip marked as completed!');
     }
@@ -134,5 +144,4 @@ public function accept(Trip $trip)
         
         return $pendingTrips;
     }
-    
 }

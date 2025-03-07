@@ -1,14 +1,6 @@
 <?php
 
-namespace App\Services;
 
-use App\Models\Trip;
-use App\Models\User;
-use App\Models\DriverAvailability;
-use Carbon\Carbon;
-
-class DriverAvailabilityService
-{
     /**
      * Update driver availabilities based on current and future trips
      */
@@ -175,3 +167,4 @@ class DriverAvailabilityService
         ]);
     }
 }
+?>  

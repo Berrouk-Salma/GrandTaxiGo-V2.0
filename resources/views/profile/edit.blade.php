@@ -5,7 +5,7 @@
 @section('content')
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card mb-4">
+        {{-- <div class="card mb-4">
             <div class="card-header">Profile Information</div>
             <div class="card-body">
                 <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
@@ -67,7 +67,47 @@
                     </div>
                 </form>
             </div>
+        </div> --}}
+        <!-- Add this to resources/views/profile/edit.blade.php -->
+
+<div class="card mt-4">
+    <div class="card-header">Reviews & Ratings</div>
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-4 text-center">
+                <h2>{{ number_format($user->averageRating(), 1) }}</h2>
+                <div class="mb-2">
+                    @stars($user->averageRating())
+                </div>
+                <p class="text-muted">{{ $user->reviewsReceived()->count() }} {{ Str::plural('review', $user->reviewsReceived()->count()) }}</p>
+            </div>
+            <div class="col-md-8">
+                <div class="row">
+                    @for ($i = 5; $i >= 1; $i--)
+                        @php
+                            $count = $user->reviewsReceived()->where('rating', $i)->count();
+                            $total = $user->reviewsReceived()->count();
+                            $percentage = $total > 0 ? ($count / $total) * 100 : 0;
+                        @endphp
+                        <div class="col-12 mb-2">
+                            <div class="d-flex align-items-center">
+                                <div class="me-2">{{ $i }} <i class="fas fa-star text-warning"></i></div>
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="ms-2">{{ $count }}</div>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+            </div>
         </div>
+        
+        <div class="mt-3 text-center">
+            <a href="{{ route('reviews.user', $user) }}" class="btn btn-primary">View All Reviews</a>
+        </div>
+    </div>
+</div>
 
         <div class="card">
             <div class="card-header">Update Password</div>
